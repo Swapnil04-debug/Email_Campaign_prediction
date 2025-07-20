@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Campaign Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 25%, #ffb347 50%, #ff8c42 75%, #ff7518 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: white;
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 80%, rgba(255, 140, 0, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(255, 165, 0, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 40% 40%, rgba(255, 69, 0, 0.3) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .container {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      width: 100%;
+    }
+    
+    .sidebar {
+      width: 320px;
+      background: linear-gradient(145deg, rgba(17, 25, 40, 0.8), rgba(30, 30, 47, 0.9));
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      height: 100vh;
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    
+    .sidebar h2 {
+      color: #2c3e50;
+      font-size: 20px;
+      margin-bottom: 20px;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar p, .sidebar li {
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 15px;
+    }
+    
+    .sidebar strong {
+      color: #34495e;
+      font-weight: 600;
+    }
+    
+    .sidebar hr {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      margin: 25px 0;
+    }
+    
+    .sidebar ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    .sidebar li {
+      padding: 5px 0;
+      position: relative;
+      padding-left: 20px;
+    }
+    
+    .sidebar li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: #34495e;
+    }
+    
+    .main {
+      flex: 1;
+      padding: 40px 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      max-width: calc(100% - 320px);
+    }
+    
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 10px;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .section {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    }
+    
+    .section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .section h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2c3e50;
+      border-bottom: 2px solid #34495e;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+      backdrop-filter: blur(10px);
+      color: white;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+    
+    input:focus {
+      border-color: #ffab00;
+      box-shadow: 0 0 20px rgba(255, 171, 0, 0.3);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
+    }
+    
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    button {
+      background: linear-gradient(135deg, #ff8c00, #ff6d00);
+      color: white;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(255, 140, 0, 0.3);
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(255, 140, 0, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    #result {
+      font-weight: 600;
+      margin-top: 30px;
+      padding: 25px;
+      background: linear-gradient(145deg, rgba(255, 165, 0, 0.1), rgba(255, 140, 0, 0.1));
+      backdrop-filter: blur(20px);
+      border-left: 4px solid #ffa500;
+      border-radius: 15px;
+      color: #0fbc5d;
+      box-shadow: 0 8px 32px rgba(255, 165, 0, 0.2);
+      border: 1px solid rgba(255, 165, 0, 0.3);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    @media (max-width: 1200px) {
+      .main {
+        padding: 30px;
+      }
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+      }
+      .main {
+        max-width: 100%;
+        padding: 20px;
+      }
+      h1 {
+        font-size: 28px;
+      }
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #ff8c00, #ff6d00);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #ffab00, #ff8c00);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h2>📊 Model Info</h2>
+      <p><strong>Application:</strong><br/>Predicting email campaign response class (0 = No Action, 1 = Clicked, 2 = Converted)</p>
+      <p><strong>Algorithm:</strong><br/>Artificial Neural Network (ANN)</p>
+      <p><strong>Tech:</strong><br/>SMOTEENN, StandardScaler</p>
+      <hr>
+      <p><strong>Binary Value Notes:</strong></p>
+      <ul>
+        <li>Email_Type: 0 = Promotional, 1 = Transactional</li>
+        <li>Email_Source_Type: 0 = Internal, 1 = External, 2 = Mixed</li>
+        <li>Email_Campaign_Type: 0 = One-time, 1 = Multi-touch</li>
+        <li>Customer_Location_X = 1 (if user belongs to that location)</li>
+      </ul>
+    </div>
+    
+    <div class="main">
+      <h1>📧 Email Campaign Response Predictor</h1>
+      <form id="predictForm">
+        <div class="section">
+          <h3>📝 Campaign Metadata</h3>
+          <div class="grid-2">
+            <div class="form-group"><label>Email Type</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+            <div class="form-group"><label>Subject Hotness Score</label><input name="feature" type="number" step="any" placeholder="0.0 - 1.0" /></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Email Source Type</label><input name="feature" type="number" placeholder="0, 1, or 2" /></div>
+            <div class="form-group"><label>Email Campaign Type</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+          </div>
+          <div class="form-group"><label>Total Past Communications</label><input name="feature" type="number" step="any" placeholder="Number of communications" /></div>
+        </div>
+
+        <div class="section">
+          <h3>🕒 Timing & Content</h3>
+          <div class="grid-2">
+            <div class="form-group"><label>Time Email Sent Category</label><input name="feature" type="number" placeholder="Category number" /></div>
+            <div class="form-group"><label>Word Count</label><input name="feature" type="number" placeholder="Number of words" /></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Total Links</label><input name="feature" type="number" step="any" placeholder="Number of links" /></div>
+            <div class="form-group"><label>Total Images</label><input name="feature" type="number" step="any" placeholder="Number of images" /></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>📍 Customer Engagement & Location</h3>
+          <div class="grid-2">
+            <div class="form-group"><label>Location Time</label><input name="feature" type="number" placeholder="Time value" /></div>
+            <div class="form-group"><label>Location Frequency</label><input name="feature" type="number" step="any" placeholder="Frequency value" /></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Customer Location B</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+            <div class="form-group"><label>Customer Location C</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Customer Location D</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+            <div class="form-group"><label>Customer Location E</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group"><label>Customer Location F</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+            <div class="form-group"><label>Customer Location G</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+          </div>
+          <div class="form-group"><label>Customer Location Unknown</label><input name="feature" type="number" placeholder="0 or 1" /></div>
+        </div>
+
+        <div class="section">
+          <h3>📊 Interactions & Derived Features</h3>
+          <div class="grid-2">
+            <div class="form-group"><label>EmailType_Campaign</label><input name="feature" type="number" placeholder="Interaction value" /></div>
+            <div class="form-group"><label>Hotness Bin</label><input name="feature" type="number" placeholder="Bin number" /></div>
+          </div>
+        </div>
+
+        <button type="submit">🔍 Predict Campaign Response</button>
+      </form>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('predictForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = '⏳ Analyzing...';
+
+      const inputs = document.querySelectorAll('input[name="feature"]');
+      const values = Array.from(inputs).map(input => parseFloat(input.value));
+
+      if (values.some(isNaN)) {
+        alert("Please fill all fields with valid numbers.");
+        btn.disabled = false;
+        btn.textContent = '🔍 Predict Campaign Response';
+        return;
+      }
+
+      try {
+        const res = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ features: values })
+        });
+        const data = await res.json();
+        const classNames = ['No Action', 'Clicked', 'Converted'];
+        document.getElementById('result').innerHTML = `
+          📢 <b>Predicted Response:</b> ${classNames[data.predicted_class]} (Class ${data.predicted_class}) <br><br>
+          📈 <b>Confidence Scores:</b><br>
+          • No Action: ${(data.class_probabilities[0][0] * 100).toFixed(1)}%<br>
+          • Clicked: ${(data.class_probabilities[0][1] * 100).toFixed(1)}%<br>
+          • Converted: ${(data.class_probabilities[0][2] * 100).toFixed(1)}%
+        `;
+      } catch (err) {
+        document.getElementById('result').innerHTML = `
+          ❌ <b>Error:</b> Unable to connect to prediction service. Please check if the backend server is running.
+        `;
+        document.getElementById('result').style.borderLeftColor = '#ff4757';
+        document.getElementById('result').style.color = '#ff4757';
+      }
+
+      btn.disabled = false;
+      btn.textContent = '🔍 Predict Campaign Response';
+    });
+    
+    // Add subtle animation to form inputs
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('focus', function() {
+        this.parentElement.style.transform = 'scale(1.02)';
+      });
+      
+      input.addEventListener('blur', function() {
+        this.parentElement.style.transform = 'scale(1)';
+      });
+    });
+  </script>
+</body>
+</html>

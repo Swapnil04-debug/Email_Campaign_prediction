@@ -1,0 +1,5 @@
+.venv/
+tfenv/
+*.pkl
+*.h5
+__pycache__/
